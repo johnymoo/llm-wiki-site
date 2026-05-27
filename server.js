@@ -8,7 +8,9 @@ const app = express();
 const PORT = process.env.PORT || 49345;
 const HOST = process.env.HOST || "0.0.0.0";
 const STATE_FILE = path.join(__dirname, "sync-state.json");
-const WIKI_DIR = path.join(__dirname, "..", "llm-wiki");
+const WIKI_DIR = path.isAbsolute(process.env.WIKI_DIR || "")
+  ? process.env.WIKI_DIR
+  : path.resolve(__dirname, process.env.WIKI_DIR || "../llm-wiki");
 const PUBLIC_DIR = path.join(__dirname, "quartz", "public");
 
 let syncLock = false;

@@ -4,7 +4,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-WIKI_DIR="../llm-wiki"
+# Load .env if present
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
+
+WIKI_DIR="${WIKI_DIR:-../llm-wiki}"
 QUARTZ_CONTENT="quartz/content"
 
 if [ ! -d "$WIKI_DIR" ]; then

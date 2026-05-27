@@ -18,6 +18,9 @@ Quartz v4 驱动的个人知识库网站，从 [llm-wiki](../llm-wiki) Markdown 
 # 安装依赖
 npm install
 
+# 配置（可选，默认使用 ../llm-wiki）
+cp .env.example .env
+
 # 首次构建
 ./build.sh
 
@@ -55,10 +58,13 @@ llm-wiki-site/
 
 ## 配置
 
-环境变量：
+复制 `.env.example` 为 `.env` 并按需修改：
 
-- `PORT` — 服务端口，默认 `49345`
-- `HOST` — 绑定地址，默认 `0.0.0.0`
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `WIKI_DIR` | llm-wiki 目录路径 | `../llm-wiki` |
+| `HOST` | 服务绑定地址 | `0.0.0.0` |
+| `PORT` | 服务端口 | `49345` |
 
 ## 工作流
 

@@ -3,3 +3,4 @@ quartz/
 sync-state.json
 .superpowers/
 .claude/
+.env
