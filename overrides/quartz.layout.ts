@@ -1,6 +1,7 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import SyncBar from "./quartz/components/SyncBar"
+import TypeBadge from "./quartz/components/TypeBadge"
 
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
@@ -16,6 +17,7 @@ export const sharedPageComponents: SharedLayout = {
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.Breadcrumbs(),
+    TypeBadge(),
     Component.ArticleTitle(),
     Component.ContentMeta(),
     Component.TagList(),
