@@ -1,0 +1,14 @@
+{
+  "name": "llm-wiki-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express server wrapping Quartz v4 for llm-wiki",
+  "scripts": {
+    "build": "bash build.sh",
+    "serve": "node server.js",
+    "sync": "node -e \"fetch('http://localhost:49345/api/sync',{method:'POST'}).then(r=>r.json()).then(console.log)\""
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

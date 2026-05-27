@@ -1,0 +1,4 @@
+node_modules/
+quartz/
+sync-state.json
+.superpowers/
