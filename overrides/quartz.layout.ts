@@ -1,10 +1,13 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
+import SyncBar from "./quartz/components/SyncBar"
 
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
-  afterBody: [],
+  afterBody: [
+    SyncBar(),
+  ],
   footer: Component.Footer({
     links: {},
   }),
