@@ -8,7 +8,7 @@
     "serve": "node server.js",
     "start": "node server.js",
     "sync": "node -e \"fetch('http://localhost:49345/api/sync',{method:'POST'}).then(r=>r.json()).then(console.log)\"",
-    "test": "node tests/config.test.js && node tests/normalize-frontmatter.test.js && node tests/static-fallback.test.js && node tests/vault-browser.test.js"
+    "test": "node tests/config.test.js && node tests/normalize-frontmatter.test.js && node tests/static-fallback.test.js && node tests/vault-browser.test.js && node tests/build-missing-vault.test.js"
   },
   "dependencies": {
     "express": "^4.21.0"

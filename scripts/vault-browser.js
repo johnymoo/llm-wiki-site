@@ -48,6 +48,21 @@ function toVaultPath(...parts) {
     .join("/")
 }
 
+function encodeVaultPath(relativePath) {
+  return toVaultPath(relativePath)
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/")
+}
+
+function hrefForVaultPath(relativePath = "", isDirectory = false, prefix = "/vault") {
+  const base = prefix.replace(/\/+$/, "")
+  const encoded = encodeVaultPath(relativePath)
+  if (!encoded) return `${base}/`
+  return `${base}/${encoded}${isDirectory ? "/" : ""}`
+}
+
 function isWithin(root, candidate) {
   const relative = path.relative(root, candidate)
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative))
@@ -83,16 +98,26 @@ function resolveVaultPath(vaultRoot, requestedPath = "") {
     throw new Error("Path is an excluded vault path")
   }
 
+  const realRelative = path.relative(realRoot, realAbsolute)
+  if (shouldExcludePath(realRelative)) {
+    throw new Error("Path is an excluded vault path")
+  }
+
   return { absolute, relative: toVaultPath(relative) }
 }
 
-function classifyEntry(root, relativePath, dirent) {
-  const absolute = path.join(root, relativePath, dirent.name)
-  const entryRelative = toVaultPath(relativePath, dirent.name)
+function classifyEntry(vaultRoot, directoryAbsolute, directoryRelative, dirent) {
+  const root = path.resolve(vaultRoot)
+  const realRoot = fs.realpathSync(root)
+  const absolute = path.join(directoryAbsolute, dirent.name)
+  const entryRelative = toVaultPath(directoryRelative, dirent.name)
   const isSymlink = dirent.isSymbolicLink()
   if (isSymlink) {
     const resolved = fs.realpathSync(absolute)
-    if (!isWithin(fs.realpathSync(root), resolved)) {
+    if (!isWithin(realRoot, resolved)) {
+      return null
+    }
+    if (shouldExcludePath(path.relative(realRoot, resolved))) {
       return null
     }
   }
@@ -102,7 +127,7 @@ function classifyEntry(root, relativePath, dirent) {
   return {
     name: dirent.name,
     path: entryRelative,
-    href: `/vault/${encodeURI(entryRelative)}${kind === "directory" ? "/" : ""}`,
+    href: hrefForVaultPath(entryRelative, kind === "directory"),
     kind,
     isSymlink,
     size: stat.size,
@@ -118,19 +143,12 @@ function listVaultDirectory(vaultRoot, requestedPath = "") {
     .filter((entry) => !shouldExcludePath(toVaultPath(relative, entry.name)))
     .map((entry) => {
       try {
-        return classifyEntry(absolute, "", entry)
+        return classifyEntry(vaultRoot, absolute, relative, entry)
       } catch {
         return null
       }
     })
     .filter(Boolean)
-    .map((entry) => ({
-      ...entry,
-      path: toVaultPath(relative, entry.name),
-      href: `/vault/${encodeURI(toVaultPath(relative, entry.name))}${
-        entry.kind === "directory" ? "/" : ""
-      }`,
-    }))
     .sort((a, b) => {
       if (a.kind !== b.kind) return a.kind === "directory" ? -1 : 1
       return a.name.localeCompare(b.name)
@@ -183,7 +201,7 @@ function renderBreadcrumbs(relativePath) {
   let current = ""
   for (const part of parts) {
     current = toVaultPath(current, part)
-    links.push(`<a href="/vault/${encodeURI(current)}/">${escapeHtml(part)}</a>`)
+    links.push(`<a href="${hrefForVaultPath(current, true)}">${escapeHtml(part)}</a>`)
   }
   return `<div class="crumbs">${links.join(" / ")}</div>`
 }
@@ -192,7 +210,7 @@ function renderVaultDirectory(relativePath, entries) {
   const normalized = toVaultPath(relativePath)
   const parentPath = normalized ? path.posix.dirname(normalized) : ""
   const parentHref = parentPath === "." ? "" : parentPath
-  const parentUrl = parentHref ? `/vault/${encodeURI(parentHref)}/` : "/vault/"
+  const parentUrl = parentHref ? hrefForVaultPath(parentHref, true) : "/vault/"
   const parentRow = normalized
     ? `<tr><td class="name"><a href="${parentUrl}">..</a></td><td class="meta">directory</td><td class="meta"></td></tr>`
     : ""
@@ -221,12 +239,13 @@ function renderVaultFile(relativePath, contents) {
 function renderVaultBinary(relativePath, stat) {
   const normalized = toVaultPath(relativePath)
   const ext = path.extname(normalized).toLowerCase()
+  const rawHref = hrefForVaultPath(normalized, false, "/vault-raw")
   const preview = IMAGE_EXTENSIONS.has(ext)
-    ? `<img src="/vault-raw/${encodeURI(normalized)}" alt="${escapeHtml(path.posix.basename(normalized))}">`
+    ? `<img src="${rawHref}" alt="${escapeHtml(path.posix.basename(normalized))}">`
     : `<div class="notice">Binary file. Use the raw link to open or download it.</div>`
   return renderShell(
     normalized,
-    `${renderBreadcrumbs(path.posix.dirname(normalized))}<h1>${escapeHtml(path.posix.basename(normalized))}</h1><p><a href="/vault-raw/${encodeURI(normalized)}">Open raw</a> · ${formatSize(stat.size)}</p>${preview}`,
+    `${renderBreadcrumbs(path.posix.dirname(normalized))}<h1>${escapeHtml(path.posix.basename(normalized))}</h1><p><a href="${rawHref}">Open raw</a> · ${formatSize(stat.size)}</p>${preview}`,
   )
 }
 
@@ -237,6 +256,7 @@ function isTextFile(filePath) {
 module.exports = {
   IMAGE_EXTENSIONS,
   TEXT_EXTENSIONS,
+  hrefForVaultPath,
   isTextFile,
   listVaultDirectory,
   renderVaultBinary,

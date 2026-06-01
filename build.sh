@@ -21,13 +21,15 @@ fi
 
 VAULT_DIR="${VAULT_DIR:-../llm-knowledge-vault}"
 if [[ "$VAULT_DIR" != /* ]]; then
-  VAULT_DIR="$(cd "$SCRIPT_DIR" && cd "$VAULT_DIR" && pwd)"
+  VAULT_DIR="$SCRIPT_DIR/$VAULT_DIR"
 fi
 
 if [ ! -d "$VAULT_DIR" ]; then
   echo "Error: vault directory not found at $VAULT_DIR" >&2
   exit 1
 fi
+
+VAULT_DIR="$(cd "$VAULT_DIR" && pwd)"
 
 echo "=== Syncing vault content from $VAULT_DIR ==="
 

@@ -68,7 +68,6 @@ app.get("/api/status", (req, res) => {
     success: state.success,
     contentHash: state.contentHash,
     error: state.error,
-    vaultDir: VAULT_DIR,
     currentContentHash: currentHash,
     needsSync: state.contentHash !== currentHash,
   })
