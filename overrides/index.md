@@ -12,6 +12,7 @@ Welcome to the LLM Wiki — a personal knowledge base covering AI coding agents,
 - **[[comparisons|Comparisons]]** — Side-by-side analyses
 - **[[study|Study]]** — Learning materials and walkthroughs
 - **[[raw/articles|Articles]]** — Source articles and references
+- **[Vault Browser](/vault/)** — Browse the published wiki layers
 
 ## How to Use
 
