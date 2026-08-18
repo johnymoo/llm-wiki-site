@@ -1,0 +1,29 @@
+# llm-wiki-site — Docker Compose deployment (issue #5 migration)
+#
+# Previously hand-started as `node server.js` (LAN 49345) with no restart policy.
+# This Compose project serves the prebuilt Quartz site with the knowledge vault
+# bind-mounted read-only at /vault and restarts unless-stopped.
+#
+# Management:
+#   cd deploy && docker compose up -d     # start (builds image from repo root)
+#   cd deploy && docker compose down      # stop
+# The /vault source is host-specific; adjust the bind source for another host.
+services:
+  site:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: llm-wiki-site:local
+    container_name: llm-wiki-site
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:49345:49345"
+    volumes:
+      - type: bind
+        source: /home/chriswang/project/Shili/workspaces/enterprise-dev/knowledge-base-craft/llm-knowledge-vault
+        target: /vault
+        read_only: true
+    environment:
+      VAULT_DIR: /vault
+      HOST: 0.0.0.0
+      PORT: "49345"
