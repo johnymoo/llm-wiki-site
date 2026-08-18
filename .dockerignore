@@ -1,0 +1,7 @@
+.git
+.claude
+.env
+.superpowers
+node_modules
+quartz
+sync-state.json
