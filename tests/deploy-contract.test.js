@@ -1,0 +1,16 @@
+const assert = require("assert")
+const fs = require("fs")
+const path = require("path")
+
+const appRoot = path.resolve(__dirname, "..")
+const dockerfile = fs.readFileSync(path.join(appRoot, "deploy", "Dockerfile"), "utf8")
+const compose = fs.readFileSync(path.join(appRoot, "deploy", "docker-compose.yml"), "utf8")
+
+assert.match(dockerfile, /git clone .*jackyzha0\/quartz/)
+assert.match(dockerfile, /--depth 1 --branch v4\.4\.1/)
+assert.match(dockerfile, /COPY build\.sh server\.js \.\//)
+assert.match(dockerfile, /ENTRYPOINT \["\.\/deploy\/entrypoint\.sh"\]/)
+assert.doesNotMatch(dockerfile, /COPY quartz \.\/quartz/)
+assert.doesNotMatch(dockerfile, /COPY sync-state\.json/)
+assert.match(compose, /SYNC_STATE_FILE: \/data\/sync-state\.json/)
+assert.match(compose, /sync-state:\n\s+name: llm-wiki-site-sync-state/)
